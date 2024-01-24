@@ -34,14 +34,12 @@ $ docker run -it demo
 
 ## Part 2. Upload image to HPCharbor 
 
-Before you proceed, we are going to make some changes. 
+Before you proceed, we are going to make some changes to the docker image. 
 
-1. rebuild the image using `--platform=linux/x86_64` argument
+1. rebuild the image using `--platform=linux/x86_64` argument. We need to make sure the image can run on the kubernetes environment:
 ```
 $ docker build --platform linux/x86_64 -t demo:latest .
 ```
-
-THIS IS AN ABSOLUTE NECESSARY STEP FOR ANYTHING TO RUN ON THE KUBERNETES SIDE.
 
 3. Tag it for HPC harbor upload and Push it (https://hpcharbor.mdanderson.edu/harbor/projects). 
    
@@ -52,10 +50,7 @@ $ docker push hpcharbor.mdanderson.edu/<your_folder>/demo:latest
 
 ## Part 3. Run your container with kubernetes
 
-I am assuming you have a kubernetes account, your HOME directory has been mounted and that they have given you a folder with templates.
-Take a look at `job.hello.gpu.yaml` as an example.
-
-I highly recommend installing OpenLens on your machine. It helps a lot with monitoring job progress (Talk to Ping about instructions and setting it up)
+I am assuming you have a kubernetes account, that your HOME directory (/rsrch4/home/plm/<username>) has been mounted and that they have given you a folder with templates. Take a look at `job.hello.gpu.yaml` that s what I will be using.
 
 1. create your own job template. 
    - Find the template provided to you in your home directory. Mine was in /rsrch4/home/plm/sranjbar/k8s-templates
@@ -76,7 +71,8 @@ job-runner.sh job.hello.gpu.yaml
 5. check progress by looking at your job status in OpenLens or you can wait and see what happens. Once the job is done, you will see a `logs` folder and a `done` folder appear in your directory. Check out the contents of the log folder for details.
 
 
-## Trouble shooting
+## lessons learned
 
+- I highly recommend installing OpenLens on your machine. It helps a lot with monitoring job progress (Talk to Ping about instructions and setting it up) 
 - If in Part 3 -> step 4 the log file says ```exec /usr/local/bin/python: exec format error```, you haven't paid enough attention and need to go back to Part2 -> step 1.
 
