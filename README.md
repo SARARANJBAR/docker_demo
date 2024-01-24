@@ -16,7 +16,10 @@ $ docker build -t demo:latest .
 ```
 $ docker run demo
 ```
-Did it do what you wanted?
+Did it do what you wanted? Did you expect it to do anything? Try the interactive mode:
+```
+$ docker run -it demo
+```
 
 3. explore:
    - make it start from the terminal. once you do, examine the folder structure inside.
