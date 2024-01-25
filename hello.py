@@ -1,3 +1,4 @@
 import cowsay
 
-cowsay.cow('I am running inside docker')
+if __name__ == "__main__":
+    cowsay.cow('moooo')

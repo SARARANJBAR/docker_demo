@@ -30,36 +30,45 @@ $ docker run -it demo
       - make use of hpcharbor and dockerhub as repositories.
       - also, you can always save them out to local tar files using `docker image save ..`
 
-4. what are some other commands you could use? when would you use them?  
+4. what are some other commands you could use? Can you get it to run your python code?
+   - explore copying the python file inside vs. compare it with mounting the code directory
+   
+5. see Ping's Dockerfiles for deep learning here: https://github.com/idso-fa1-pathology/K8S-Cluster-Env.git
 
 ## Part 2. Upload image to HPCharbor 
 
-Before you proceed, we are going to make some changes to the docker image. 
+Before you proceed, I am going to make some changes to the docker image to make it compatible for running on ubuntu (kubernetes)  
 
 1. rebuild the image using `--platform=linux/x86_64` argument. We need to make sure the image can run on the kubernetes environment:
 ```
-$ docker build --platform linux/x86_64 -t demo:latest .
+$ docker build --platform linux/x86_64 -t demo:latest-x86_64 .
 ```
 
 3. Tag it for HPC harbor upload and Push it (https://hpcharbor.mdanderson.edu/harbor/projects). 
    
 ```
-$ docker tag demo:latest hpcharbor.mdanderson.edu/<your_folder>/demo:latest
-$ docker push hpcharbor.mdanderson.edu/<your_folder>/demo:latest
+$ docker tag demo:latest-x86_64 hpcharbor.mdanderson.edu/<your_folder>/demo:latest-x86_64
+$ docker push hpcharbor.mdanderson.edu/<your_folder>/demo:latest-x86_64
 ```
 
-## Part 3. Run your container with kubernetes
+## Part 3. kubernetes
 
-I am assuming you have a kubernetes account, that your HOME directory (/rsrch4/home/plm/<username>) has been mounted and that they have given you a folder with templates. Take a look at `job.hello.gpu.yaml` that s what I will be using.
+Before we proceed, ensure that your kubernetes account is set up, that your HOME directory (/rsrch4/home/plm/<username>) has been mounted, and that your HOME directory includes a `.kube` folder with a config file inside. There should be a `K8s-templates` in your home directory. Take a look at your templates. Make sure your `securityContext.runAsUser` matches your employee id, and that `volumeMounts` is your HOME directory
 
-1. create your own job template. 
-   - Find the template provided to you in your home directory. Mine was in /rsrch4/home/plm/sranjbar/k8s-templates
-   - There are 2 templates, one for gpu and one for cpu. I will be using the gpu one here.
-   - duplicate your gpu template inside the code directory, rename it something meaningful.
+## Part 4. Submitting a kubernetes job
 
-2. change `metadata.name, containers.image, containers.command`. Follow what I have inside `job.hello.gpu.yaml`.
+1. Decide if you want to run a cpu or gpu job. The kubernetes context needs to match the job template you are using.
+   - run `kubectl config get-context` to find out your active kubernetes context.
+   - you can switch from one to another using:
+      - switch to gpu: `kubectl config use-context [Username]_yn-gpu-workload@research-prd`
+      - switch to cpu: `kubectl config use-context [Username]_yn-cpu-workload@research-prd`
 
-Ok, you now have a job template that looks for your image on HPCharbor, and calls `python hello.py` when running it.
+2. create YOUR OWM job yaml file.
+   - find the relevant (cpu or gpu) template the `K8s-templates` folder. Your paths are already set up there. Make sure the path to your HOME is correct everywhere.
+   - copy the template inside the code directory, rename it to something meaningful. As you see here, I renamed mine `job.hello.gpu.yaml`.
+   - change `metadata.name, containers.image, containers.command`. See `job.hello.gpu.yaml` for reference.
+
+Ok, you now have a job template that looks for your docker image on HPCharbor, and calls `python hello.py` when running it.
 
 3. ssh into your seadragon account and cd inside this directory. 
 
@@ -68,11 +77,16 @@ Ok, you now have a job template that looks for your image on HPCharbor, and call
 ```
 job-runner.sh job.hello.gpu.yaml
 ```
+or 
+```
+kubectl apply -f <job.yaml>
+```
+
 5. check progress by looking at your job status in OpenLens or you can wait and see what happens. Once the job is done, you will see a `logs` folder and a `done` folder appear in your directory. Check out the contents of the log folder for details.
 
 
 ## lessons learned
 
 - I highly recommend installing OpenLens on your machine. It helps a lot with monitoring job progress (Talk to Ping about instructions and setting it up) 
-- If in Part 3 -> step 4 the log file says ```exec /usr/local/bin/python: exec format error```, you haven't paid enough attention and need to go back to Part2 -> step 1.
-
+- If in Part 3 -> step 4 the log file says ```exec /usr/local/bin/python: exec format error```, go back to Part2 -> step 1.
+- Make use of tags for differentiating different versions of your image.ß

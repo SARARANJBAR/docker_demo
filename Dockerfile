@@ -11,5 +11,6 @@ FROM python:slim
 # - add command: RUN pip install -r requirements.txt 
 RUN pip install cowsay
 
+
 # entrypoint command: open a terminal window
 CMD ["/bin/bash"]

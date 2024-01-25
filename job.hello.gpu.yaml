@@ -19,8 +19,8 @@ spec:
         fsGroup: 900027
       containers:
         - name: main
-          image: hpcharbor.mdanderson.edu/sranjbar/docker_demo:latest
-          command: ["python", "/rsrch5/home/plm/sranjbar/docker_projects/docker_demo/hello.py"]
+          image: hpcharbor.mdanderson.edu/sranjbar/demo:latest-x86_64
+          command: ["python", "/rsrch5/home/plm/sranjbar/docker_projects/docker-k8s-workshop/hello.py"]
           args: []
           workingDir: "/rsrch5/home/plm/sranjbar/"
           env:
